@@ -1,27 +1,40 @@
 package com.onit.authentication.jwts.security.controller;
 
+import com.onit.authentication.jwts.common.dto.HttpResponse;
 import com.onit.authentication.jwts.modules.user.domain.Role;
 import com.onit.authentication.jwts.modules.user.dto.UserLoginDto;
 import com.onit.authentication.jwts.modules.user.dto.UserRequestDto;
 import com.onit.authentication.jwts.modules.user.mapper.UserMapper;
 import com.onit.authentication.jwts.modules.user.repository.UserRepository;
+import com.onit.authentication.jwts.modules.user.service.UserService;
 import com.onit.authentication.jwts.security.jwt.JwtTokenProvider;
 import com.onit.authentication.jwts.security.model.CustomUserPrincipal;
 import com.onit.authentication.jwts.security.refresh.RefreshTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 import java.io.IOException;
+import java.net.URI;
+import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * AuthenticationController
@@ -38,6 +51,7 @@ import java.util.Set;
 public class AuthenticationController {
     final AuthenticationManager authenticationManager;
     final UserRepository userRepository;
+    final UserService userService;
     final PasswordEncoder passwordEncoder;
     final RefreshTokenService refreshTokenService;
     final JwtTokenProvider jwtTokenProvider;
@@ -121,30 +135,43 @@ public class AuthenticationController {
 
       return "User Successfully signed up";
     }
-
-  @GetMapping
-  public String getPosts(){
-    return "It Works!";
-  }
+//
+//    @PostMapping("/register")
+//    public ResponseEntity<HttpResponse> saveUser(@RequestBody @Valid UserRequestDto requestDto) throws InterruptedException {
+////    TimeUnit.SECONDS.sleep(4);
+//
+//    final var userDto = userService.createUser(requestDto);
+//
+//    return ResponseEntity.created(getUri(userDto.id())).body(
+//       HttpResponse.builder()
+//          .timeStamp(ZonedDateTime.now())
+//          .data(Map.of("user", userDto))
+//          .message(String.format("User account created for user %s", requestDto.name()))
+//          .status(HttpStatus.CREATED)
+//          .statusCode(HttpStatus.CREATED.value())
+//          .build());
+//  }
+//
+//    private final URI getUri(Long newUserId) {
+//        return ServletUriComponentsBuilder
+//            .fromCurrentRequest()
+//            .path("/{id}")
+//            .buildAndExpand(newUserId)
+//            .toUri();
+//    }
+//
+//    @GetMapping
+//    public String getPosts(){
+//    return "It Works!";
+//  }
 
     private Cookie createCookie(String name, String value, long maxAgeMs, boolean isDev) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(!isDev);
         cookie.setSecure(!isDev);
         cookie.setPath("/");
-        cookie.setMaxAge(Math.max(1, (int) (maxAgeMs / 1000))); // garantir valor positivo
+        cookie.setMaxAge(Math.max(1, (int) (maxAgeMs / 1000)));
         return cookie;
     }
-
-  /**
-   * Record para transportar dados extraídos do principal.
-   */
-  private record UserInfo(
-     String email,
-     String name,
-     String imageUrl,
-//     AuthProvider provider,
-     Set<Role> roles) {
-  }
 
 }
