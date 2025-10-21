@@ -22,6 +22,13 @@ spring:
         format_sql: true
 
 jwt:
-  jwtSecret: ${JWT_SECRET}
-  jwtAccessExpirationMs: 21600000 # 15 min
-  jwtRefreshExpirationMs: 604800000 # 7 dias
+  jwtSecret: Y2hhdmUtc2VndXJhLXBhcmEtZ2VyYWNhby1kZS10b2tlbnM=
+  jwtAccessExpirationMs: 900000 # 15 min
+  jwtRefreshExpirationMs: 86400000 # 1 dia
+
+app:
+  environment: dev
+
+logging:
+  level:
+    org.springframework.security: DEBUG
