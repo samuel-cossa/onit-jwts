@@ -11,6 +11,15 @@ import com.onit.authentication.jwts.common.enums.RoleName;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Role
+ *
+ * @author Samuel Cossa <a href="https://github.com/samuel-cossa">...</a>
+ * @version 1.0
+ * @email ar.sam.cossa@gmail.com.com
+ * @license MIT
+ * @since 10/20/25
+ */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "_roles", uniqueConstraints = {

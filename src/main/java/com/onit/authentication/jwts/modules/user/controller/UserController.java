@@ -20,10 +20,19 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ *  UserController
+ *
+ * @author Samuel Cossa <a href="https://github.com/samuel-cossa">...</a>
+ * @version 1.0
+ * @email ar.sam.cossa@gmail.com.com
+ * @license MIT
+ * @since 10/20/25
+ */
 @Slf4j
 @Tag(name = "Users", description = "Endpoints para listar e editar users")
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RestController
 public class UserController {
     final UserService userService;

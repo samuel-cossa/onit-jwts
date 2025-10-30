@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/onit_jwts
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: sam
+    password: asd123fgh
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true

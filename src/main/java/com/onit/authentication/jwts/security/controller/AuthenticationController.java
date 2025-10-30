@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/authentication")
 public class AuthenticationController {
     final AuthenticationManager authenticationManager;
     final UserRepository userRepository;
@@ -59,18 +59,18 @@ public class AuthenticationController {
     @Value("${app.environment:dev}")
     private String environment;
 
-
   @PostMapping("/login")
   public String login(
-     @RequestBody UserLoginDto requestDto,
-     @NonNull HttpServletResponse response) {
+      @RequestBody UserLoginDto requestDto,
+      @NonNull HttpServletResponse response) {
+
     try {
       Authentication authentication = authenticationManager.authenticate(
-         new UsernamePasswordAuthenticationToken(
+          new UsernamePasswordAuthenticationToken(
             requestDto.email(),
             requestDto.password()
-         )
-                                                                        );
+          ));
+
       final var principal = (CustomUserPrincipal) authentication.getPrincipal();
 
       String accessToken = jwtTokenProvider.generateToken(principal.user());
@@ -87,6 +87,7 @@ public class AuthenticationController {
       e.printStackTrace(); // ou log
       return "Login failed: " + e.getMessage();
     }
+
   }
 
   @PostMapping("/sign-in")
@@ -112,58 +113,76 @@ public class AuthenticationController {
     }
 
     @PostMapping("/sign-up")
-    public String signUp(
+    public ResponseEntity<HttpResponse> signUp(
             @RequestBody UserRequestDto requestDto,
-            @NonNull HttpServletResponse response)throws IOException, ServletException {
-        if(userRepository.existsByEmail(requestDto.email())){
-            return "User Already Exist";
-        }
+            @NonNull HttpServletResponse response)throws IOException {
 
-        final var mapedUser = userMapper.toUserEntity(requestDto);
-        mapedUser.setPassword(passwordEncoder.encode(mapedUser.getPassword()));
-        final var newUSer = userRepository.save(mapedUser);
+        final var savedUser = userService.signUp(requestDto,response);
+        var message = "Account created Success";
 
+        if (savedUser.email() == null) message = "User Already Exist";
 
-        final var accessToken = jwtTokenProvider.generateToken(newUSer);
-        final var refreshToken = refreshTokenService.createRefreshToken(newUSer);
-        final var isDev = environment.equalsIgnoreCase("dev");
-
-        response.addCookie(createCookie("accessToken", accessToken, jwtTokenProvider.getExpiration(), isDev));
-        response.addCookie(
-            createCookie("refreshToken", refreshToken, refreshTokenService.getRefreshTokenDurationMs(), isDev));
-        response.sendRedirect("/api/users");
-
-      return "User Successfully signed up";
+      return ResponseEntity.created(getUri(savedUser.id())).body(
+         HttpResponse.builder()
+            .timeStamp(ZonedDateTime.now())
+            .data(Map.of("user", savedUser))
+            .message(String.format(message, requestDto.name()))
+            .status(HttpStatus.CREATED)
+            .statusCode(HttpStatus.CREATED.value())
+            .build());
     }
-//
-//    @PostMapping("/register")
-//    public ResponseEntity<HttpResponse> saveUser(@RequestBody @Valid UserRequestDto requestDto) throws InterruptedException {
-////    TimeUnit.SECONDS.sleep(4);
-//
-//    final var userDto = userService.createUser(requestDto);
-//
-//    return ResponseEntity.created(getUri(userDto.id())).body(
-//       HttpResponse.builder()
-//          .timeStamp(ZonedDateTime.now())
-//          .data(Map.of("user", userDto))
-//          .message(String.format("User account created for user %s", requestDto.name()))
-//          .status(HttpStatus.CREATED)
-//          .statusCode(HttpStatus.CREATED.value())
-//          .build());
-//  }
-//
-//    private final URI getUri(Long newUserId) {
-//        return ServletUriComponentsBuilder
-//            .fromCurrentRequest()
-//            .path("/{id}")
-//            .buildAndExpand(newUserId)
-//            .toUri();
-//    }
-//
-//    @GetMapping
-//    public String getPosts(){
-//    return "It Works!";
-//  }
+
+  @PostMapping("/sign-up2")
+  public String signUp2(
+     @RequestBody UserRequestDto requestDto,
+     @NonNull HttpServletResponse response)throws IOException {
+    if(userRepository.existsByEmail(requestDto.email())){
+      return "User Already Exist";
+    }
+
+    final var mapedUser = userMapper.toUserEntity(requestDto);
+    mapedUser.setPassword(passwordEncoder.encode(mapedUser.getPassword()));
+    final var newUSer = userRepository.save(mapedUser);
+
+    final var accessToken = jwtTokenProvider.generateToken(newUSer);
+    final var refreshToken = refreshTokenService.createRefreshToken(newUSer);
+    final var isDev = environment.equalsIgnoreCase("dev");
+
+    response.addCookie(createCookie("accessToken", accessToken, jwtTokenProvider.getExpiration(), isDev));
+    response.addCookie(
+       createCookie("refreshToken", refreshToken, refreshTokenService.getRefreshTokenDurationMs(), isDev));
+    response.sendRedirect("/api/users");
+
+    return "User Successfully signed up";
+  }
+    @PostMapping("/register")
+    public ResponseEntity<HttpResponse> saveUser(@RequestBody @Valid UserRequestDto requestDto) throws InterruptedException {
+//    TimeUnit.SECONDS.sleep(4);
+
+    final var userDto = userService.createUser(requestDto);
+
+    return ResponseEntity.created(getUri(userDto.id())).body(
+       HttpResponse.builder()
+          .timeStamp(ZonedDateTime.now())
+          .data(Map.of("user", userDto))
+          .message(String.format("User account created for user %s", requestDto.name()))
+          .status(HttpStatus.CREATED)
+          .statusCode(HttpStatus.CREATED.value())
+          .build());
+  }
+
+    private final URI getUri(Long newUserId) {
+        return ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(newUserId)
+            .toUri();
+    }
+
+    @GetMapping
+    public String getPosts(){
+    return "It Works!";
+  }
 
     private Cookie createCookie(String name, String value, long maxAgeMs, boolean isDev) {
         Cookie cookie = new Cookie(name, value);

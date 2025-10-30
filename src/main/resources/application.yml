@@ -1,25 +1,20 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: jwts
-  datasource:
-    url: jdbc:h2:mem:testdb # banco em memória (troque por jdbc:h2:file:./data/testdb para arquivo)
-    driver-class-name: org.h2.Driver
-    username: sampleuser
-    password: mysecretpassword
-  h2:
-    console:
-      enabled: true # habilita console web
-      path: /h2-console # URL para acessar no navegador (http://localhost:8080/h2-console)
-  jpa:
-    hibernate:
-      ddl-auto: update # cria/atualiza tabelas automaticamente (create, update, validate, none)
-    show-sql: true # loga as queries SQL no console
-    properties:
-      hibernate:
-        format_sql: true
+  profiles:
+    active: prod # muda para 'prod' em ambiente de produção
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  swagger-ui:
+    path: /swagger-ui.html
+  error:
+    whitelabel:
+      enabled: false
+    include-message: never
+    include-stacktrace: never
 
 jwt:
   jwtSecret: Y2hhdmUtc2VndXJhLXBhcmEtZ2VyYWNhby1kZS10b2tlbnM=
@@ -27,7 +22,9 @@ jwt:
   jwtRefreshExpirationMs: 86400000 # 1 dia
 
 app:
-  environment: dev
+  frontend:
+    url: http://localhost:4200
+  environment: ${APP_ENVIRONMENT:dev}
 
 logging:
   level:

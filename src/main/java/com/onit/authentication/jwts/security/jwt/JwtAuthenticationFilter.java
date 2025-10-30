@@ -35,16 +35,15 @@ import java.util.Arrays;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    final JwtTokenProvider tokenProvider;
-    final UserRepository userRepository;
-
+  final JwtTokenProvider tokenProvider;
+  final UserRepository userRepository;
 
   @Override
   protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                  @NonNull HttpServletResponse response,
-                                  @NonNull FilterChain filterChain) throws ServletException, IOException {
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain) throws ServletException, IOException {
     try {
-      //  Ignore filtering public Endpoints
+      // Ignore filtering public Endpoints
       final var path = request.getRequestURI();
       if (isPublicPath(path)) {
         filterChain.doFilter(request, response);
@@ -65,12 +64,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
       String email = tokenProvider.getEmailFromToken(jwt);
       var user = userRepository.findByEmail(email)
-          .orElseThrow(() ->
-            new UsernameNotFoundException("User not found with email = " + email));
+          .orElseThrow(() -> new UsernameNotFoundException("User not found with email = " + email));
 
       var principal = new CustomUserPrincipal(user);
       var authentication = new UsernamePasswordAuthenticationToken(
-         principal, null, principal.getAuthorities());
+          principal, null, principal.getAuthorities());
       authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
       SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -86,24 +84,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private String extractJwtFromCookie(HttpServletRequest request) {
-        if (request.getCookies() == null)
-            return null;
+    if (request.getCookies() == null)
+      return null;
 
-        return Arrays.stream(request.getCookies())
-                .filter(cookie -> "accessToken".equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
-    }
+    return Arrays.stream(request.getCookies())
+        .filter(cookie -> "accessToken".equals(cookie.getName()))
+        .map(Cookie::getValue)
+        .findFirst()
+        .orElse(null);
+  }
 
   private boolean isPublicPath(String path) {
-    return path.startsWith("/api/v1/auth") ||
-       path.startsWith("/swagger-ui") ||
-       path.startsWith("/v3/api-docs") ||
-       path.startsWith("/swagger-resources") ||
-       path.equals("/swagger-ui.html") ||
-       path.startsWith("/webjars") ||
-       path.startsWith("/actuator") ||
-       path.equals("/error");
+    return path.startsWith("/auth") ||
+        path.startsWith("/swagger-ui") ||
+        path.startsWith("/v3/api-docs") ||
+        path.startsWith("/swagger-resources") ||
+        path.equals("/swagger-ui.html") ||
+        path.startsWith("/webjars") ||
+        path.startsWith("/actuator") ||
+        path.startsWith("/posts") ||
+        path.equals("/error");
   }
 }

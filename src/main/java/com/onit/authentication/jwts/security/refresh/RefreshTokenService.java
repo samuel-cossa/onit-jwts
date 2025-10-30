@@ -1,6 +1,7 @@
 package com.onit.authentication.jwts.security.refresh;
 
 import com.onit.authentication.jwts.modules.user.domain.User;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +16,14 @@ import java.util.UUID;
 @Service
 public class RefreshTokenService {
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    final RefreshTokenRepository refreshTokenRepository;
 
-    @Value("${jwt.jwtRefreshExpirationMs}")
+  /**
+   * -- GETTER --
+   * Método getter para o tempo de duração do refresh token
+   */
+  @Getter
+  @Value("${jwt.jwtRefreshExpirationMs}")
     private long refreshTokenDurationMs;
 
     @Transactional
@@ -59,8 +65,4 @@ public class RefreshTokenService {
         refreshTokenRepository.deleteByUser(user);
     }
 
-    /** Método getter para o tempo de duração do refresh token */
-    public long getRefreshTokenDurationMs() {
-        return refreshTokenDurationMs;
-    }
 }

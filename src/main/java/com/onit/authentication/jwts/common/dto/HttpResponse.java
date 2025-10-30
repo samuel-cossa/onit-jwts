@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
@@ -33,6 +34,8 @@ public class HttpResponse {
   private Map<String, Object> data;
 
   private String message;
+
+  private URI uri;
 
   private HttpStatus status;
 

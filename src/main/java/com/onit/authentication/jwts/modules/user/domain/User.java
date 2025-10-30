@@ -30,8 +30,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- ** @author Samuel Cossa https://github.com/samuel-cossa
- *         Application User Data Class
+ *  User
+ *
+ * @author Samuel Cossa <a href="https://github.com/samuel-cossa">...</a>
+ * @version 1.0
+ * @email ar.sam.cossa@gmail.com.com
+ * @license MIT
+ * @since 10/20/25
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)

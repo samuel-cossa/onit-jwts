@@ -21,15 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
- * WebSecurityConfig
- *
- * @author Samuel Cossa <a href="https://github.com/samuel-cossa">...</a>
- * @version 1.0
- * @email ar.sam.cossa@gmail.com.com
- * @license MIT
- * @since 10/20/25
- */
-/**
  * SecurityConfig
  *
  * @author Samuel Cossa <a href="https://github.com/samuel-cossa">...</a>
@@ -57,7 +48,6 @@ public class SecurityConfig {
 
     http
        .csrf(AbstractHttpConfigurer::disable)
-//                .cors(AbstractHttpConfigurer::disable)
        .cors(cors -> cors.configurationSource(corsConfigurationSource))
        .sessionManagement(session -> session
           .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -67,16 +57,7 @@ public class SecurityConfig {
                 "Unauthorized, Must Work Hard!")))
        .authorizeHttpRequests(request->
              request
-                .requestMatchers(
-                   "/api/v1/auth/**",
-                   "/posts/**",
-                   "/swagger-ui/**",
-                   "/v3/api-docs/**",
-                   "/swagger-resources/**",
-                   "/swagger-ui.html",
-                   "/webjars/**",
-                   "/actuator/**",
-                   "/error")
+                .requestMatchers(WHITE_LIST_URL)
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -96,4 +77,17 @@ public class SecurityConfig {
   public PasswordEncoder passwordEncoder(){
     return new BCryptPasswordEncoder();
   }
+
+  private static final String[]  WHITE_LIST_URL = {
+      "/auth/**",
+      "/posts",
+      "/swagger-ui/**",
+      "/v3/api-docs/**",
+      "/swagger-resources/**",
+      "/swagger-ui.html",
+      "/webjars/**",
+      "/actuator/**",
+      "/error"
+  };
+
 }
